@@ -3,24 +3,32 @@ package main
 import "fmt"
 
 type Stack struct {
-	S []string
+	store []string
+	limit int
 }
 
 func (s *Stack) Pop() string {
+	if len(s.store) == 0 {
+		return ""
+	}
 	var x string
-	x, s.S = s.S[len(s.S)-1], s.S[:len(s.S)-1]
+	x, s.store = s.store[len(s.store)-1], s.store[:len(s.store)-1]
 	return x
 }
 func (s *Stack) Push(ss string) {
-	s.S = append(s.S, ss)
+	s.store = append(s.store, ss)
+	if len(s.store) > s.limit {
+		s.store = s.store[1:]
+	}
 }
 
-func main()  {
-	stack := &Stack{}
-	ss := "a"
-	stack.S = append(stack.S, ss)
-	stack.S = append(stack.S, ss)
-	stack.Push("b")
-	fmt.Println(stack.Pop())
-	fmt.Println(stack.S)
+func main() {
+	s := &Stack{}
+	s.Push("a")
+	s.Push("b")
+	s.Push("c")
+	s.Pop()
+
+	fmt.Println(s.Pop())
+	fmt.Println(s.store)
 }
