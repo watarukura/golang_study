@@ -5,10 +5,36 @@ import (
 	"fmt"
 	"os"
 	"io/ioutil"
+	"flag"
+	"strings"
 )
 
 func main() {
-	resp, err := http.Get("http://example.com/")
+	var (
+		method string
+		url    string
+		head   string
+	)
+
+	flag.StringVar(&method, "X", "GET", "http method")
+	flag.StringVar(&head, "head", "", "http header")
+	flag.StringVar(&head, "H", "", "http header")
+	flag.Parse();
+	url = flag.Args()[0]
+	heads := strings.Fields(head)
+	head_key := heads[0]
+	head_val := heads[1]
+
+	req, err := http.NewRequest(method, url, nil)
+	if head != "" {
+		req.Header.Set(head_key, head_val)
+	}
+	if err != nil {
+		fmt.Errorf("%s", err)
+		os.Exit(1)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Errorf("%s", err)
 		os.Exit(1)
