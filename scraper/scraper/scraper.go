@@ -9,6 +9,7 @@ import (
 )
 
 type Page struct {
+	Url         string `json:url`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
@@ -26,6 +27,7 @@ func Get(url string) (*Page, error) {
 	}
 
 	page := &Page{}
+	page.Url = url
 	var f func(node *html.Node)
 	f = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "title" {
@@ -61,6 +63,8 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		rawurls := r.Form["url[]"]
+		//fmt.Println(rawurls)
+		var ps []*Page
 		for i := 0; i < len(rawurls); i++ {
 			if rawurls[i] == "" {
 				http.Error(w, "url not specified", http.StatusBadRequest)
@@ -71,13 +75,13 @@ func main() {
 				http.Error(w, "request failed", http.StatusInternalServerError)
 				return
 			}
-			w.Header().Set("Content-Type", "application/json")
-			enc := json.NewEncoder(w)
-			if err := enc.Encode(p); err != nil {
-				http.Error(w, "encoding failed", http.StatusInternalServerError)
-				return
-			}
-
+			ps = append(ps, p)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		enc := json.NewEncoder(w)
+		if err := enc.Encode(ps); err != nil {
+			http.Error(w, "encoding failed", http.StatusInternalServerError)
+			return
 		}
 	})
 	log.Fatal(http.ListenAndServe(":8080", nil))
