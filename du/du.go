@@ -16,19 +16,21 @@ func SizeOf(d string) int64 {
 	files, _ := ioutil.ReadDir(d)
 	var sum int64
 	for i := 0; i < len(files); i++ {
-		fmt.Println(files[i].Name())
-		if IsFile(files[i]) {
-			sum += files[i].Size()
+		//fmt.Println(files[i].Name())
+		if IsDir(files[i]) {
+			//fmt.Println(d+files[i].Name())
+			sum += SizeOf(d+files[i].Name())
 			fmt.Println(sum)
 		} else {
-			SizeOf(d+files[i].Name())
+			sum += files[i].Size()
+			fmt.Println(sum)
 		}
 	}
 	return sum
 }
 
-func IsFile(fileInfo os.FileInfo) bool {
-	return !fileInfo.IsDir()
+func IsDir(fileInfo os.FileInfo) bool {
+	return fileInfo.IsDir()
 }
 
 func main() {
