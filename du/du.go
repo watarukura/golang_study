@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 )
 
 func FilesCount(d string) int {
@@ -29,8 +30,24 @@ func SizeOf(d string) int64 {
 	return sum
 }
 
-func IsDir(fileInfo os.FileInfo) bool {
-	return fileInfo.IsDir()
+func FilesList(d string) []os.FileInfo {
+	dorf, _ := ioutil.ReadDir(d)
+	var fileinfos []os.FileInfo
+	j := 0
+	for i := 0; i < len(dorf); i++ {
+		if dorf[i].IsDir() {
+			dir := d + "/" + dorf[i].Name()
+			infos := FilesList(dir)
+			for k := 0; k < len(infos); k++ {
+				fileinfos[j] = infos[k]
+				j++
+			}
+		} else {
+			fileinfos[j] = dorf[i]
+			j++
+		}
+	}
+	return fileinfos
 }
 
 func main() {
@@ -40,6 +57,12 @@ func main() {
 	dir_files := 0
 	var dir_sizes int64
 	for i := 0; i < len(dirs); i++ {
+		files, _ := ioutil.ReadDir(dirs[i])
+		for j := 0; j < len(files); j++ {
+			if files[j].IsDir() {
+
+			}
+		}
 		dir_files += FilesCount(dirs[i])
 		dir_sizes += SizeOf(dirs[i])
 	}
