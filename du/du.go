@@ -5,66 +5,43 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 )
 
-func FilesCount(d string) int {
-	files, _ := ioutil.ReadDir(d)
-	return len(files)
-}
-
-func SizeOf(d string) int64 {
-	files, _ := ioutil.ReadDir(d)
-	var sum int64
-	for i := 0; i < len(files); i++ {
-		//fmt.Println(files[i].Name())
-		if IsDir(files[i]) {
-			//fmt.Println(d+files[i].Name())
-			sum += SizeOf(d+files[i].Name())
-			fmt.Println(sum)
-		} else {
-			sum += files[i].Size()
-			fmt.Println(sum)
-		}
-	}
-	return sum
-}
-
-func FilesList(d string) []os.FileInfo {
+func FileList(d string) []os.FileInfo {
 	dorf, _ := ioutil.ReadDir(d)
 	var fileinfos []os.FileInfo
-	j := 0
 	for i := 0; i < len(dorf); i++ {
 		if dorf[i].IsDir() {
 			dir := d + "/" + dorf[i].Name()
-			infos := FilesList(dir)
+			infos := FileList(dir)
 			for k := 0; k < len(infos); k++ {
-				fileinfos[j] = infos[k]
-				j++
+				fileinfos = append(fileinfos, infos[k])
 			}
 		} else {
-			fileinfos[j] = dorf[i]
-			j++
+			fileinfos = append(fileinfos, dorf[i])
 		}
 	}
 	return fileinfos
 }
 
 func main() {
+	var dir string
+
 	flag.Parse();
 	dirs := flag.Args()
-	fmt.Println(dirs)
-	dir_files := 0
-	var dir_sizes int64
-	for i := 0; i < len(dirs); i++ {
-		files, _ := ioutil.ReadDir(dirs[i])
-		for j := 0; j < len(files); j++ {
-			if files[j].IsDir() {
 
-			}
-		}
-		dir_files += FilesCount(dirs[i])
-		dir_sizes += SizeOf(dirs[i])
+	if len(dirs) == 0 {
+		dir = "./"
+	} else {
+		dir = dirs[0]
 	}
-	fmt.Printf("%d files, %d bytes", dir_files, dir_sizes)
+
+	files := FileList(dir)
+	count := len(files)
+
+	var size int64
+	for i := 0; i < len(files); i++ {
+		size += files[i].Size()
+	}
+	fmt.Printf("%d files, %d bytes", count, size)
 }
