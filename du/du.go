@@ -14,8 +14,8 @@ func FileList(d string) []os.FileInfo {
 		if dorf[i].IsDir() {
 			dir := d + "/" + dorf[i].Name()
 			infos := FileList(dir)
-			for k := 0; k < len(infos); k++ {
-				fileinfos = append(fileinfos, infos[k])
+			for _, info := range infos {
+				fileinfos = append(fileinfos, info)
 			}
 		} else {
 			fileinfos = append(fileinfos, dorf[i])
@@ -25,23 +25,23 @@ func FileList(d string) []os.FileInfo {
 }
 
 func main() {
-	var dir string
-
 	flag.Parse();
 	dirs := flag.Args()
 
+	// 指定がない場合はカレントディレクトリ配下に対して実行
 	if len(dirs) == 0 {
-		dir = "./"
-	} else {
-		dir = dirs[0]
+		dirs = append(dirs, "./")
 	}
 
-	files := FileList(dir)
-	count := len(files)
+	var size int64 // os.Fileinfo.Size() の返り値はint64なのでそのまま使う
+	var count int
 
-	var size int64
-	for i := 0; i < len(files); i++ {
-		size += files[i].Size()
+	for _, dir := range dirs {
+		files := FileList(dir)
+		count += len(files)
+		for _, file := range files {
+			size += file.Size()
+		}
 	}
 	fmt.Printf("%d files, %d bytes", count, size)
 }
